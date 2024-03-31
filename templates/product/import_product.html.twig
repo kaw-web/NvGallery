@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+    <div id="main-container">
+        <div style="border: 1px solid #936a4f;background-color: #936a4f;padding: 20px;width: 90%;
+                border-radius: 5px;">
+            {{ form_start(form) }}
+            <div>
+            <span style="font-weight: bold">{{ form_label(form.jsonFile, 'Choisir le fichier de produits à importer') }}</span>
+            <span style="margin-left: 10px"> {{ form_widget(form.jsonFile) }}</span>
+        </div>
+        <div >
+            <button type="submit" class="btn btn-primary">Importer</button>
+        </div>
+    </div>
+
+    {{ form_end(form) }}
+{% endblock %}

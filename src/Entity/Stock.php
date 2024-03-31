@@ -25,6 +25,19 @@ class Stock
     private ?float $quantity = null;
 
     #[ORM\Column(nullable: true)]
+    private ?float $price = null;
+
+    public function getPrice(): ?float
+    {
+        return $this->price;
+    }
+
+    public function setPrice(?float $price): void
+    {
+        $this->price = $price;
+    }
+
+    #[ORM\Column(nullable: true)]
     private ?float $vat_rate = null;
 
     public function getId(): ?int
