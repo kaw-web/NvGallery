@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+    {# Zone de recherche #}
+    <form action="{{ path('products') }}" method="get" >
+        <input type="text" name="search" placeholder="Rechercher..." value="{{ app.request.query.get('search') }}">
+        <button type="submit" class="btn btn-primary" >Rechercher</button>
+    </form>
+<br>
+    <table>
+        <tr>
+            <th><b>Reférence</b></th>
+            <th><b>Nom</b></th>
+            <th><b>Description</b></th>
+            <th><b>Catégorie</b></th>
+            <th><b>Dropshipping</b></th>
+        </tr>
+        {% for product in products %}
+            <tr>
+                <td>{{ product.reference }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.description }}</td>
+                <td>{{ product.category}}</td>
+                <td>{{ product.dropshipping}}</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="4" style="text-align: center;">
+                <div class="pagination pagination-style">
+                    {{ knp_pagination_render(products) }}
+                </div>
+            </td>
+        </tr>
+    </table>
+{% endblock %}

@@ -6,7 +6,9 @@ use App\Form\ImportType;
 use App\Message\ImportInventoriesMessage;
 use App\Message\ImportProductAndStockDataMessage;
 use App\MessageHandler\ImportInventoriesMessageHandler;
+use App\Service\ImportDisplayProductService;
 use App\Service\ProductImportService;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -53,10 +55,16 @@ class ProductController extends AbstractController
     }
 
     #[Route('/products', name: 'products')]
-    public function products(): Response
+    public function products(Request $request, PaginatorInterface $paginator, ProductImportService $productImportService): Response
     {
-        return $this->render('product/index.html.twig', [
-            'controller_name' => 'ProductController',
+        $search= $request->query->get('search');
+        $products = $paginator->paginate(
+            $productImportService->getProductList($search),
+            $request->query->getInt('page',1),
+            ProductImportService::ITEMS_PER_Page
+        );
+        return $this->render('product/list_product.html.twig', [
+            'products' => $products,
         ]);
     }
 

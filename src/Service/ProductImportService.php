@@ -14,7 +14,7 @@ use http\Exception\InvalidArgumentException;
 class ProductImportService
 {
 
-
+    public const  ITEMS_PER_Page = 10;
     public function __construct(private readonly EntityManagerInterface $entityManager)
     {
     }
@@ -49,6 +49,18 @@ class ProductImportService
         $this->entityManager->flush();
     }
 
+    public function getProductList(?string $search)
+    {
+        $query =  $this->entityManager->getRepository(Product::class)
+            ->createQueryBuilder('p');
+        if($search != null) {
+            $query
+                ->Where('p.reference LIKE :search')
+                ->orWhere('p.name LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+        return $query->getQuery();
+    }
     private function extractProductFromJson(array $productStockData):Product
     {
 
