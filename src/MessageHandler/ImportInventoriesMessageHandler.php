@@ -3,7 +3,7 @@
 namespace App\MessageHandler;
 
 
-use App\Message\ImportProductAndStockDataMessage;
+use App\Message\ImportInventoriesMessage;
 use App\Service\ProductImportService;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -15,7 +15,7 @@ class ImportInventoriesMessageHandler
     {
     }
 
-    public function __invoke(ImportProductAndStockDataMessage $message)
+    public function __invoke(ImportInventoriesMessage $message)
    {
       $data = $message->getData();
       $this->productImportService->insertInventoriesValues($data);

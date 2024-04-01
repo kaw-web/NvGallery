@@ -2,7 +2,7 @@
 
 namespace App\Message;
 
-class importInventoriesMessage
+class ImportInventoriesMessage
 {
 
     public function __construct( public array $InventoriesData)
