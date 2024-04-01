@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\InventoriesRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -23,6 +25,27 @@ class Inventories
 
     #[ORM\Column(nullable: true)]
     private ?float $quantity = null;
+
+    #[ORM\OneToMany(targetEntity: Inbounds::class, mappedBy: 'Inventory')]
+    private Collection $inbounds;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $createdAt = null;
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTimeInterface $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function __construct()
+    {
+        $this->inbounds = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -61,6 +84,36 @@ class Inventories
     public function setQuantity(?float $quantity): static
     {
         $this->quantity = $quantity;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Inbounds>
+     */
+    public function getInbounds(): Collection
+    {
+        return $this->inbounds;
+    }
+
+    public function addInbound(Inbounds $inbound): static
+    {
+        if (!$this->inbounds->contains($inbound)) {
+            $this->inbounds->add($inbound);
+            $inbound->setInventory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInbound(Inbounds $inbound): static
+    {
+        if ($this->inbounds->removeElement($inbound)) {
+            // set the owning side to null (unless already changed)
+            if ($inbound->getInventory() === $this) {
+                $inbound->setInventory(null);
+            }
+        }
 
         return $this;
     }

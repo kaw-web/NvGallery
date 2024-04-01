@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Form\ImportType;
 use App\Message\ImportProductAndStockDataMessage;
+use App\MessageHandler\ImportInventoriesMessageHandler;
+use App\Service\ProductImportService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -57,13 +59,32 @@ class ProductController extends AbstractController
         ]);
     }
 
-
-    #[Route('/erp/inventories', name: 'app_inventories', methods:['POST'])]
-    public function inventories(): Response
+    #[Route('/import/inventories', name: 'import_inventories')]
+    public function importInventories(Request $request, MessageBusInterface $messageBus, ProductImportService $productImportService): Response
     {
-        return $this->render('product/index.html.twig', [
-            'controller_name' => 'ProductController',
+        $form = $this->createForm(ImportType::class);
+        $form->handleRequest($request);
+        if($form->isSubmitted() && $form->isValid())
+        {
+            $jsonFile = $form->get('jsonFile')->getData();
+            if ($jsonFile) {
+                $jsonData = file_get_contents($jsonFile->getPathname());
+                $jsonDataArray = json_decode($jsonData, true);
+               $messageBus->dispatch(new ImportProductAndStockDataMessage($jsonDataArray));
+                return $this->redirectToRoute('products');
+            }
+        }
+
+        return $this->render('product/import_inventories.html.twig', [
+            'form' => $form->createView(),
         ]);
+    }
+    #[Route('/erp/inventories', name: 'app_inventories', methods:['POST'])]
+    public function inventories(Request $request, MessageBusInterface $messageBus): Response
+    {
+        $data = json_decode($request->getContent(), true);
+        $messageBus->dispatch(new ImportProductAndStockDataMessage($data));
+        return new Response('Data received and dispatched successfully', Response::HTTP_OK);
     }
 
 }

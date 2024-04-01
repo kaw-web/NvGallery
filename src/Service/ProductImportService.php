@@ -3,15 +3,13 @@
 namespace App\Service;
 
 use App\Entity\Channel;
+use App\Entity\Inbounds;
+use App\Entity\Inventories;
 use App\Entity\Product;
 use App\Entity\Stock;
 use Doctrine\ORM\EntityManagerInterface;
 use http\Exception\InvalidArgumentException;
-use PHPUnit\Util\Exception;
-use Symfony\Component\Routing\RouterInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Contracts\HttpClient\ResponseInterface;
-use function PHPUnit\Framework\throwException;
+
 
 class ProductImportService
 {
@@ -34,11 +32,28 @@ class ProductImportService
         $this->entityManager->flush();
     }
 
+    public function insertInventoriesValues(array $inventoriesData)
+    {
+        $inventories = $inventoriesData["inventories"];
+
+        array_walk($inventories, function($element) use($inventoriesData){
+            $inventory = $this->extractInventoryFromJson($element, $inventoriesData["reference"]);
+            $this->entityManager->persist($inventory);
+            $inbounds = $element["inbounds"];
+            array_walk($inbounds, function($inbound)use($inventory){
+                $inbound = $this->extractInboundFRomJson($inbound, $inventory);
+                $this->entityManager->persist($inbound);
+            });
+        });
+
+        $this->entityManager->flush();
+    }
+
     private function extractProductFromJson(array $productStockData):Product
     {
 
         if($productStockData["reference"] == null)
-            throw new InvalidArgumentException('Le champs "référence" ne peut pas être vide');
+            throw new \InvalidArgumentException('Le champs "référence" ne peut pas être vide');
         $existingProduct = $this->entityManager->getRepository(Product::class)->findOneBy(["reference"=>$productStockData["reference"]]);
         $product = $existingProduct !=null?$existingProduct:new Product();
         $product->setReference($productStockData["reference"]);
@@ -52,8 +67,8 @@ class ProductImportService
     private function extractStockFromJson(array $stockData, Product $product):Stock
     {
         if($stockData["channel"] == null)
-            throw new InvalidArgumentException('Le champs "channel" ne peut pas être vide');
-        $stock = null;
+            throw new \InvalidArgumentException('Le champs "channel" ne peut pas être vide');
+
         $channel = $this->entityManager->getRepository(Channel::class)->findOneBy(['code'=>$stockData["channel"]]);
         $existingStock = $this->entityManager->getRepository(Stock::class)->findOneBy(["channel"=>$channel, "reference"=>$product]);
        if($existingStock == null)
@@ -67,5 +82,27 @@ class ProductImportService
        $stock->setVatRate($stockData["vat_rate"]);
        $stock->setPrice($stockData["price"]);
        return $stock;
+    }
+
+    private function extractInventoryFromJson(array $inventoryData, string $reference):Inventories
+    {
+        $inventory = new Inventories();
+        $reference = $this->entityManager->getRepository(Product::class)->findOneBy(["reference"=>$reference]);
+        if($reference == null)
+            throw new \InvalidArgumentException("Le champ reference ne peut pas etre nulle");
+        $inventory->setReference($reference);
+        $inventory->setQuantity($inventoryData["quantity"]);
+        $inventory->setChannels($inventoryData["channels"]);
+        $inventory->setCreatedAt(new \DateTime());
+        return $inventory;
+    }
+
+    private function extractInboundFRomJson(array $inboudData, Inventories $inventory):Inbounds
+    {
+        $inbound = new Inbounds();
+        $inbound->setInventory($inventory);
+        $inbound->setQuantity($inboudData["quantity"]);
+        $inbound->setArrivalDate(new \DateTime($inboudData["arrival_date"]));
+        return $inbound;
     }
 }
