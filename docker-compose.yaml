@@ -10,6 +10,8 @@ services:
       - db
     environment:
       DATABASE_URL: "mysql://root:password@db:3306/my_database"
+    command:
+        ["./docker-dependencies.sh"]
   db:
     image: mysql:5.7
     restart: always
