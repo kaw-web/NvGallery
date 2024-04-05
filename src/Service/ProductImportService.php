@@ -15,37 +15,38 @@ class ProductImportService
 {
 
     public const  ITEMS_PER_Page = 10;
-    public function __construct(private readonly EntityManagerInterface $entityManager)
+    public function __construct(private readonly entityManagerInterface $entityManager)
     {
     }
 
     public function insertProductStockValues(array $productStockData)
     {
-         $product = $this->extractProductFromJson($productStockData);
-         $this->entityManager->persist($product);
-         $stockList = ($productStockData["pricing"]);
-         array_walk($stockList, function($element)use($product){
-            $stockObject = $this->extractStockFromJson($element, $product);
-           $this->entityManager->persist($stockObject);
-         });
-
+        foreach ($productStockData as $prductData) {
+            $product = $this->extractProductFromJson($prductData);
+            $this->entityManager->persist($product);
+            $stockList = $prductData["pricing"];
+            array_walk($stockList, function($element)use($product){
+                $stockObject = $this->extractStockFromJson($element, $product);
+                $this->entityManager->persist($stockObject);
+            });
+        }
         $this->entityManager->flush();
     }
 
     public function insertInventoriesValues(array $inventoriesData)
     {
-        $inventories = $inventoriesData["inventories"];
-
-        array_walk($inventories, function($element) use($inventoriesData){
-            $inventory = $this->extractInventoryFromJson($element, $inventoriesData["reference"]);
-            $this->entityManager->persist($inventory);
-            $inbounds = $element["inbounds"];
-            array_walk($inbounds, function($inbound)use($inventory){
-                $inbound = $this->extractInboundFRomJson($inbound, $inventory);
-                $this->entityManager->persist($inbound);
+        foreach ($inventoriesData as $inventoryData) {
+            $inventories = $inventoryData["inventories"];
+            array_walk($inventories, function($element) use($inventoryData){
+                $inventory = $this->extractInventoryFromJson($element, $inventoryData["reference"]);
+                $this->entityManager->persist($inventory);
+                $inbounds = $element["inbounds"];
+                array_walk($inbounds, function($inbound)use($inventory){
+                    $inbound = $this->extractInboundFRomJson($inbound, $inventory);
+                    $this->entityManager->persist($inbound);
+                });
             });
-        });
-
+        }
         $this->entityManager->flush();
     }
 
@@ -80,8 +81,8 @@ class ProductImportService
     {
         if($stockData["channel"] == null)
             throw new \InvalidArgumentException('Le champs "channel" ne peut pas être vide');
-
         $channel = $this->entityManager->getRepository(Channel::class)->findOneBy(['code'=>$stockData["channel"]]);
+
         $existingStock = $this->entityManager->getRepository(Stock::class)->findOneBy(["channel"=>$channel, "reference"=>$product]);
        if($existingStock == null)
        {
