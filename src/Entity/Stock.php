@@ -22,9 +22,6 @@ class Stock
     private ?Channel $channel = null;
 
     #[ORM\Column(nullable: true)]
-    private ?float $quantity = null;
-
-    #[ORM\Column(nullable: true)]
     private ?float $price = null;
 
     public function getPrice(): ?float
@@ -65,18 +62,6 @@ class Stock
     public function setChannel(?Channel $channel): static
     {
         $this->channel = $channel;
-
-        return $this;
-    }
-
-    public function getQuantity(): ?float
-    {
-        return $this->quantity;
-    }
-
-    public function setQuantity(?float $quantity): static
-    {
-        $this->quantity = $quantity;
 
         return $this;
     }
