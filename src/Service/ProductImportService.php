@@ -19,7 +19,7 @@ class ProductImportService
     {
     }
 
-    public function insertProductStockValues(array $productStockData)
+    public function insertProductStockValues(array $productStockData):void
     {
         foreach ($productStockData as $prductData) {
             $product = $this->extractProductFromJson($prductData);
@@ -33,7 +33,7 @@ class ProductImportService
         $this->entityManager->flush();
     }
 
-    public function insertInventoriesValues(array $inventoriesData)
+    public function insertInventoriesValues(array $inventoriesData):void
     {
         foreach ($inventoriesData as $inventoryData) {
             $inventories = $inventoryData["inventories"];
