@@ -62,6 +62,15 @@ class ProductImportService
         }
         return $query->getQuery();
     }
+
+    /**
+     * @param Product $product
+     * @return array<Stock>
+     */
+    public function getSTockForProduct(Product $product):array
+    {
+        return  $this->entityManager->getRepository(Stock::class)->findBy(['reference' => $product]);
+    }
     private function extractProductFromJson(array $productStockData):Product
     {
 

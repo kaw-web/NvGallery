@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+    <div class="detail-product-container">
+        <a href="{{ path('products') }}"><button class="btn btn-primary">Retour</button></a>
+        <br><br>
+        <h2>Détails des stocks du produit {{ product.reference }}</h2>
+        <div style="margin-top: 20px">
+            <table>
+                <tr>
+                    <th><b>Boutique</b></th>
+                    <th><b>Vat_rate</b></th>
+                    <th><b>Prix</b></th>
+                </tr>
+                {% for stock in stocks %}
+                    <tr>
+                        <td>{{ stock.channel.code }} </td>
+                        <td>{{ stock.vatRate}} </td>
+                        <td>{{ stock.price}} </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

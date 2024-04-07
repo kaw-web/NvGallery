@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Product;
 use App\Form\ImportType;
 use App\Message\ImportInventoriesMessage;
 use App\Message\ImportProductAndStockDataMessage;
@@ -68,5 +69,13 @@ class ProductController extends AbstractController
         ]);
     }
 
+    #[Route('/product/detail/{id}', name: 'product_detail', methods:['GET'])]
+    public function productDetail(Request $request, ProductImportService $productImportService, Product $product): Response
+    {
+        $stocks = $productImportService->getSTockForProduct($product);
+        return $this->render('product/stocks_for_product.html.twig',
+            ['stocks' => $stocks,
+            'product' => $product,]);
+    }
 
 }

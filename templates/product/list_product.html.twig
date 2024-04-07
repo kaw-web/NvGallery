@@ -18,7 +18,7 @@
         </tr>
         {% for product in products %}
             <tr>
-                <td>{{ product.reference }}</td>
+                <td><a href="{{ path('product_detail', {'id':product.id}) }}">{{ product.reference }} </a></td>
                 <td>{{ product.name }}</td>
                 <td>{{ product.description }}</td>
                 <td>{{ product.category}}</td>

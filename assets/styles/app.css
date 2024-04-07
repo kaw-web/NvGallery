@@ -69,3 +69,7 @@ section{
     display: flex;
     gap: 10px;
 }
+.detail-product-container{
+    margin-top: 10px;
+    margin-left: 10px
+}
