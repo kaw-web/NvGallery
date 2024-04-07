@@ -6,6 +6,7 @@ use App\Message\ImportProductAndStockDataMessage;
 use App\MessageHandler\ImportProductMessageHandler;
 use App\Service\ProductImportService;
 use Doctrine\ORM\EntityManagerInterface;
+use PhpParser\Node\Expr\Yield_;
 use PHPUnit\Framework\TestCase;
 
 class ImportProductMessageHandlerTest extends TestCase
@@ -35,7 +36,31 @@ class ImportProductMessageHandlerTest extends TestCase
         // Appeler la méthode à tester
         $productImportService->insertProductStockValues($productStockData);
     }
-    public function productStockDataProvider(): iterable
+
+    /**
+     * @dataProvider  productDataProvider
+     */
+    public function testExtractProductFromJson(array $productStockData)
+    {
+        // Créer un mock pour l'entityManager
+        $entityManagerMock = $this->getMockBuilder(EntityManagerInterface::class)
+            ->getMock();
+
+        // Créer une instance de ProductImportService en injectant l'entityManagerMock
+        $productImportService = new ProductImportService($entityManagerMock);
+
+        // Appeler la méthode extractProductFromJson à tester via une méthode publique de ProductImportService
+        $product = $productImportService->extractProductFromJson($productStockData);
+
+        // Vérifier si l'objet Product retourné a les bonnes valeurs
+        $this->assertEquals($productStockData["reference"], $product->getReference());
+        $this->assertEquals($productStockData["name"], $product->getName());
+        $this->assertEquals($productStockData["description"], $product->getDescription());
+        $this->assertEquals($productStockData["category"], $product->getCategory());
+        $this->assertEquals($productStockData["dropshipping"], $product->getDropshipping());
+    }
+
+    private function productStockDataProvider(): iterable
     {
         yield [
             [
@@ -74,6 +99,19 @@ class ImportProductMessageHandlerTest extends TestCase
                 ]
             ],
             5 // 5 fois: 2 produits + 3 stock
+        ];
+    }
+
+    private function productDataProvider(): iterable
+    {
+        Yield[ [
+            "reference" => "REF123",
+            "name" => "Test Product",
+            "description" => "Description",
+            "category" => "Category",
+            "dropshipping" => true
+             ]
+
         ];
     }
 }

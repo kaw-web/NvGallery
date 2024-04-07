@@ -71,7 +71,7 @@ class ProductImportService
     {
         return  $this->entityManager->getRepository(Stock::class)->findBy(['reference' => $product]);
     }
-    private function extractProductFromJson(array $productStockData):Product
+    public function extractProductFromJson(array $productStockData):Product
     {
 
         if($productStockData["reference"] == null)
@@ -86,7 +86,7 @@ class ProductImportService
         return $product;
     }
 
-    private function extractStockFromJson(array $stockData, Product $product):Stock
+    public function extractStockFromJson(array $stockData, Product $product):Stock
     {
         if($stockData["channel"] == null)
             throw new \InvalidArgumentException('Le champs "channel" ne peut pas être vide');
@@ -106,7 +106,7 @@ class ProductImportService
        return $stock;
     }
 
-    private function extractInventoryFromJson(array $inventoryData, string $reference):Inventories
+    public function extractInventoryFromJson(array $inventoryData, string $reference):Inventories
     {
         $inventory = new Inventories();
         $reference = $this->entityManager->getRepository(Product::class)->findOneBy(["reference"=>$reference]);
@@ -119,7 +119,7 @@ class ProductImportService
         return $inventory;
     }
 
-    private function extractInboundFRomJson(array $inboudData, Inventories $inventory):Inbounds
+    public function extractInboundFRomJson(array $inboudData, Inventories $inventory):Inbounds
     {
         $inbound = new Inbounds();
         $inbound->setInventory($inventory);
